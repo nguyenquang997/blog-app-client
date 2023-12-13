@@ -1,5 +1,5 @@
 import { useLoaderData } from "react-router-dom"
-import { Box, Container, } from "@mui/material"
+import { Box, Container } from "@mui/material"
 
 import UserMenu from '../../component/UserMenu'
 import Header from '../../component/Header'
@@ -21,6 +21,7 @@ function HomePage() {
                 }}
             >
                 <UserMenu />
+
             </Box>
             <PostList posts={data} />
             <CreatePost />

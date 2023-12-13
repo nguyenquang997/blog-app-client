@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import FileBase64 from 'react-file-base64';
 import { useNavigate } from "react-router-dom";
-import { Modal, Box, Typography, Fab, TextField, Button } from '@mui/material';
+import { Modal, Box, Typography, Fab, TextField, Button, Alert } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add'
 import { createPost } from '../../api/'
 
@@ -29,10 +29,19 @@ function CreatePost() {
         p: 4,
     };
 
-    const handleCreatePost = () => {
-        createPost(data)
+    const handleCreatePost = async () => {
+        const result = await createPost(data)
+        if (!result?._id) {
+            <Alert severity="success"> Create Success </Alert>
+            return
+        }
+        alert('Create Success')
         setOpen(false)
-        setData({})
+        setData({
+            title: '',
+            content: '',
+            attachment: '',
+        })
         navigate('/')
     }
 
