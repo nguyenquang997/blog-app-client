@@ -1,14 +1,13 @@
-import { useLoaderData } from "react-router-dom"
 import { Box, Container } from "@mui/material"
 
 import UserMenu from '../../component/UserMenu'
 import Header from '../../component/Header'
 import PostList from '../../component/PostList'
 import CreatePost from '../../component/CreatePost'
+import HomeProvider from "../../Context/HomeProvider"
 
 
 function HomePage() {
-    const data = useLoaderData()
 
     return (
         <Container maxWidth='lg'>
@@ -23,9 +22,10 @@ function HomePage() {
                 <UserMenu />
 
             </Box>
-            <PostList posts={data} />
-            <CreatePost />
-
+            <HomeProvider>
+                <PostList />
+                <CreatePost />
+            </HomeProvider>
         </Container>
     );
 }

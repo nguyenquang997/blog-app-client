@@ -1,6 +1,7 @@
 
 // eslint-disable-next-line react-refresh/only-export-components
 const URI = 'https://blog-app-r6gh.onrender.com/'
+// const URI = 'http://localhost:5000/'
 
 export const getPosts = async () => {
     try {
@@ -11,14 +12,17 @@ export const getPosts = async () => {
         )
 
         const data = await res.json()
-        return data
+        return data.map(x => ({
+            ...x,
+            imgURL: `${URI}static/${x.imgPart}`
+        }))
     } catch (error) {
         console.error(error)
         return []
     }
 }
 
-export const createPost = async (data) => {
+export const createPost = async (dataUpdate) => {
     try {
         const res = await fetch(URI,
             {
@@ -27,18 +31,22 @@ export const createPost = async (data) => {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(data)
+                body: JSON.stringify(dataUpdate)
             }
         )
 
-        return await res.json()
+        const data = await res.json()
+        return {
+            ...data,
+            imgURL: `${URI}static/${data.imgPart}`
+        }
     } catch (error) {
         console.error(error)
         return []
     }
 }
 
-export const deletePost = async (data) => {
+export const deletePost = async (dataDelete) => {
     try {
         const res = await fetch(URI,
             {
@@ -47,10 +55,15 @@ export const deletePost = async (data) => {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(data)
+                body: JSON.stringify(dataDelete)
             }
         )
-        return await res.json()
+
+        const data = await res.json()
+        return {
+            ...data,
+            imgURL: `${URI}static/${data.imgPart}`
+        }
     } catch (error) {
         console.error(error)
         return []

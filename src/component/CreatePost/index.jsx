@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import FileBase64 from 'react-file-base64';
-import { useNavigate } from "react-router-dom";
-import { Modal, Box, Typography, Fab, TextField, Button, Alert } from '@mui/material';
+import { Modal, Box, Typography, Fab, TextField, Button } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add'
 import { createPost } from '../../api/'
+import { HomeContext } from '../../Context/HomeProvider';
 
 function CreatePost() {
     const [data, setData] = useState({
@@ -11,11 +11,13 @@ function CreatePost() {
         content: '',
         attachment: '',
     });
+
     const [open, setOpen] = useState(false);
+
+    const { dataApi, setDataApi } = useContext(HomeContext)
 
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
-    const navigate = useNavigate()
 
     const style = {
         position: 'absolute',
@@ -32,7 +34,7 @@ function CreatePost() {
     const handleCreatePost = async () => {
         const result = await createPost(data)
         if (!result?._id) {
-            <Alert severity="success"> Create Success </Alert>
+            alert('Create Faill')
             return
         }
         alert('Create Success')
@@ -42,7 +44,8 @@ function CreatePost() {
             content: '',
             attachment: '',
         })
-        navigate('/')
+
+        setDataApi([...dataApi, result])
     }
 
     return (
@@ -82,7 +85,7 @@ function CreatePost() {
                         />
                         <FileBase64
                             multiple={true}
-                            onDone={(img) => setData({ ...data, attachment: img[0].base64 })}
+                            onDone={(img) => setData({ ...data, attachment: img[0].base64, imgPart: img[0].name })}
                         />
                         <div style={{ marginTop: '20px' }}>
                             <Button

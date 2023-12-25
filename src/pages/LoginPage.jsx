@@ -9,7 +9,6 @@ function LoginPage() {
     const navigate = useNavigate()
     const provider = new GoogleAuthProvider();
     const auth = getAuth();
-    auth.languageCode = 'it';
 
     useEffect(() => {
         if (user?.uid) {

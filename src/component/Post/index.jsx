@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useContext, useState } from "react";
 import {
     Avatar,
     Card,
@@ -12,18 +11,19 @@ import {
     CardActions,
     Menu,
     MenuItem,
+    Skeleton,
 } from "@mui/material";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import moment from "moment";
 import { deletePost, updatePost } from "../../api"
+import { HomeContext } from "../../Context/HomeProvider";
 
 // eslint-disable-next-line react/prop-types
 function Post({ postInfo }) {
     const [anchorEl, setAnchorEl] = useState(null)
     const isOpen = anchorEl ? true : false
-
-    const navigate = useNavigate()
+    const { dataApi, setDataApi } = useContext(HomeContext)
 
     const handleOpen = (e) => {
         setAnchorEl(e.currentTarget)
@@ -34,26 +34,40 @@ function Post({ postInfo }) {
     }
 
     const handleDelete = async (e) => {
-        await deletePost({ _id: e.target.id })
-        navigate('/')
+        const result = await deletePost({ _id: e.target.id })
+        const datas = dataApi.filter(x => x._id !== result._id)
+        setAnchorEl(null)
+        setDataApi(datas)
     }
 
     const handleUpdate = async () => {
-        await updatePost({ ...postInfo, likeCount: postInfo.likeCount += 1 })
-        navigate('/')
+        const result = await updatePost({ ...postInfo, likeCount: postInfo.likeCount += 1 })
+        const datas = dataApi.map(x => {
+            if (x._id === result._id) {
+                return { ...x, likeCount: result.likeCount, updatedAt: result.updatedAt }
+            } else {
+                return x
+            }
+        })
+        setDataApi(datas)
     }
     // eslint-disable-next-line react/prop-types
     return (
         <Card sx={{ textAlign: 'left' }}>
             <CardHeader
-                avatar={<Avatar >R</Avatar>}
-                title={postInfo?.title}
-                subheader={moment(postInfo?.updatedAt).format('HH:MM MMM DD, YYYY')}
+                avatar={!postInfo._id
+                    ? <Skeleton animation="wave" variant="circular" width={40} height={40} />
+                    : <Avatar >R</Avatar>
+                }
+                title={!postInfo._id
+                    ? <Skeleton animation="wave" height={10} width="80%" style={{ marginBottom: 6 }} />
+                    : postInfo?.title}
+                subheader={!postInfo._id ? <Skeleton animation="wave" height={10} width="50%" /> : moment(postInfo?.updatedAt).format('HH:mm DD/MM/YYYY')}
                 action={
                     <>
-                        <IconButton onClick={handleOpen}  >
+                        {!postInfo._id ? null : <IconButton onClick={handleOpen}  >
                             <MoreVertIcon />
-                        </IconButton>
+                        </IconButton>}
                         <Menu
                             id="basic-menu"
                             anchorEl={anchorEl}
@@ -65,24 +79,35 @@ function Post({ postInfo }) {
                     </>
                 }
             />
-            <CardMedia
-                component="img"
-                height="194"
-                image={postInfo?.attachment || ''}
-                alt="Paella dish"
-            />
+            {!postInfo._id
+                ? <Skeleton sx={{ height: 190 }} animation="wave" variant="rectangular" />
+                : <CardMedia
+                    component="img"
+                    height="194"
+                    image={postInfo?.imgURL || ''}
+                    alt="Paella dish"
+                />
+            }
             <CardContent>
-                <Typography variant="body2" color="text.secondary">
-                    {postInfo?.content}
-                </Typography>
+                {!postInfo._id ?
+                    <>
+                        <Skeleton animation="wave" height={10} style={{ marginBottom: 6 }} />
+                        <Skeleton animation="wave" height={10} width="80%" />
+                    </>
+                    : <Typography variant="body2" color="text.secondary">
+                        {postInfo?.content}
+                    </Typography>
+                }
             </CardContent>
-            <CardActions disableSpacing>
-                <IconButton aria-label="add to favorites" onClick={handleUpdate} id={postInfo?._id}>
-                    <FavoriteIcon />
-                </IconButton>
-                <Typography component='span' >{postInfo?.likeCount} Like</Typography>
-            </CardActions>
-        </Card>
+            {!postInfo._id ? null
+                : <CardActions>
+                    <IconButton aria-label="add to favorites" onClick={handleUpdate} >
+                        <FavoriteIcon />
+                    </IconButton>
+                    <Typography component='span' >{postInfo?.likeCount} Like</Typography>
+                </CardActions>
+            }
+        </Card >
     );
 }
 
